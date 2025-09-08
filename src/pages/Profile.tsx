@@ -30,6 +30,7 @@ import {
   Flame,
   Edit3
 } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 
 interface Certificate {
   id: number
@@ -155,8 +156,7 @@ const Profile = () => {
                 </Link>
               </Button>
               <div className="flex items-center gap-2 ml-auto">
-                <img src="/logo.png" alt="Devs@PSU Logo" className="w-6 h-6" />
-                <span className="text-sm text-primary font-medium">Devs@PSU</span>
+                <Logo size="sm" />
               </div>
             </div>
             

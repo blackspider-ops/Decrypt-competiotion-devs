@@ -9,6 +9,7 @@ import { useEventInfo } from "@/hooks/useEventInfo";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Shield, Zap, Trophy, Users, Clock, Lock, LogOut, User } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 
 const Index = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -21,7 +22,7 @@ const Index = () => {
     const handleAuthFromUrl = async () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const urlParams = new URLSearchParams(window.location.search);
-      
+
       const error = hashParams.get('error') || urlParams.get('error');
       const errorDescription = hashParams.get('error_description') || urlParams.get('error_description');
       const errorCode = hashParams.get('error_code') || urlParams.get('error_code');
@@ -32,10 +33,10 @@ const Index = () => {
 
       if (error) {
         console.log('Auth error detected:', error, errorCode, errorDescription);
-        
+
         // Clean the URL
         window.history.replaceState({}, document.title, window.location.pathname);
-        
+
         // Show appropriate error message
         if (errorCode === 'otp_expired' || error === 'access_denied') {
           toast({
@@ -57,13 +58,13 @@ const Index = () => {
       // If we have auth tokens in the URL, try to establish session
       if (accessToken && refreshToken) {
         console.log('Auth tokens found in URL, attempting to establish session...');
-        
+
         try {
           // Wait a moment for Supabase to process the tokens
           setTimeout(async () => {
             const { data, error: sessionError } = await supabase.auth.getSession();
             console.log('Session check after magic link:', { data: data.session?.user?.email, error: sessionError });
-            
+
             if (data.session?.user) {
               toast({
                 title: "Welcome!",
@@ -90,30 +91,30 @@ const Index = () => {
           <MobileNav title={title} showUserActions={true} />
         </header>
       )}
-      
+
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/10" />
         <div className="relative responsive-container py-12 sm:py-16 md:py-24">
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 bg-primary/10 border border-primary/20 rounded-full mb-4 sm:mb-6">
-              <img src="/logo.png" alt="Devs@PSU Logo" className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="text-xs sm:text-sm text-primary font-medium">Devs@PSU Presents</span>
+              <Logo size="sm" />
+              <span className="text-xs sm:text-sm text-primary font-medium">Presents</span>
             </div>
-            
+
             <h1 className="responsive-text-hero font-bold mb-4 sm:mb-6 text-gradient-cyber glow-text">
               {title.split(' — ')[0] || title}
             </h1>
-            
+
             <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-3 sm:mb-4">
               Crack the code. Win the night.
             </p>
-            
+
             <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
-              Challenge yourself in the ultimate cybersecurity competition. Solve progressive cipher challenges, 
+              Challenge yourself in the ultimate cybersecurity competition. Solve progressive cipher challenges,
               compete on the real-time leaderboard, and prove your cryptographic skills.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
               {user ? (
                 <>
@@ -126,8 +127,8 @@ const Index = () => {
                 </>
               ) : (
                 <>
-                  <Button 
-                    size="lg" 
+                  <Button
+                    size="lg"
                     className="btn-neon text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
                     onClick={() => setAuthModalOpen(true)}
                   >
@@ -184,7 +185,7 @@ const Index = () => {
               Progressive challenges that unlock as you solve them. Every second counts!
             </p>
           </div>
-          
+
           <div className="responsive-grid max-w-4xl mx-auto">
             <Card className="card-cyber">
               <CardHeader className="text-center px-4 sm:px-6">
@@ -199,7 +200,7 @@ const Index = () => {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card className="card-cyber">
               <CardHeader className="text-center px-4 sm:px-6">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-accent/20 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
@@ -213,7 +214,7 @@ const Index = () => {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card className="card-cyber">
               <CardHeader className="text-center px-4 sm:px-6">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/20 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
@@ -237,7 +238,7 @@ const Index = () => {
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="responsive-text-title font-bold mb-3 sm:mb-4 text-gradient-cyber">FAQ</h2>
           </div>
-          
+
           <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
             <Card className="card-cyber">
               <CardHeader className="px-4 sm:px-6">
@@ -245,31 +246,31 @@ const Index = () => {
               </CardHeader>
               <CardContent className="px-4 sm:px-6">
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  Any Penn State student with a valid @psu.edu email address can participate. 
+                  Any Penn State student with a valid @psu.edu email address can participate.
                   No prior cryptography experience required!
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card className="card-cyber">
               <CardHeader className="px-4 sm:px-6">
                 <CardTitle className="text-lg sm:text-xl">What should I bring?</CardTitle>
               </CardHeader>
               <CardContent className="px-4 sm:px-6">
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  Just bring your laptop with a web browser and internet connection. 
+                  Just bring your laptop with a web browser and internet connection.
                   All challenges are completed through this web platform.
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card className="card-cyber">
               <CardHeader className="px-4 sm:px-6">
                 <CardTitle className="text-lg sm:text-xl">How does scoring work?</CardTitle>
               </CardHeader>
               <CardContent className="px-4 sm:px-6">
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  Each challenge awards 100 points. Your total time (sum of individual challenge times) 
+                  Each challenge awards 100 points. Your total time (sum of individual challenge times)
                   is used as a tiebreaker. Faster is better!
                 </p>
               </CardContent>
@@ -282,8 +283,7 @@ const Index = () => {
       <footer className="border-t border-primary/20 py-6 sm:py-8">
         <div className="responsive-container text-center">
           <div className="flex items-center justify-center gap-2 mb-3 sm:mb-4">
-            <img src="/logo.png" alt="Devs@PSU Logo" className="w-5 h-5 sm:w-6 sm:h-6" />
-            <span className="font-semibold text-primary text-sm sm:text-base">Devs@PSU</span>
+            <Logo size="md" />
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground">
             © 2025 Devs@PSU. Built with ❤️ for the developers community.

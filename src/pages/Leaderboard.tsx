@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,11 +7,16 @@ import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { ArrowLeft, Trophy, Clock, Users, Zap, Pause, StopCircle } from "lucide-react";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { useEventStatus } from "@/hooks/useEventStatus";
+import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { Logo } from "@/components/ui/logo";
 
 const Leaderboard = () => {
   const { leaderboard, loading, formatTime } = useLeaderboard();
   const { status: eventStatus, allowPlayAccess } = useEventStatus();
+  const { user } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const getRankDisplay = (rank: number) => {
     if (rank === 1) return { icon: "🥇", color: "text-primary" };
@@ -36,18 +42,28 @@ const Leaderboard = () => {
               </Link>
             </Button>
             <div className="flex items-center gap-2 sm:gap-3">
-              <img src="/logo.png" alt="Devs@PSU Logo" className="w-6 h-6 sm:w-8 sm:h-8" />
+              <Logo size="md" showText={false} />
               <h1 className="text-lg sm:text-2xl font-bold text-gradient-cyber">Live Leaderboard</h1>
             </div>
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
-            <Button asChild className="btn-neon text-sm sm:text-base px-3 sm:px-4">
-              <Link to="/play">
+            {user ? (
+              <Button asChild className="btn-neon text-sm sm:text-base px-3 sm:px-4">
+                <Link to="/play">
+                  <span className="hidden sm:inline">Join Competition</span>
+                  <span className="sm:hidden">Join</span>
+                </Link>
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => setAuthModalOpen(true)}
+                className="btn-neon text-sm sm:text-base px-3 sm:px-4"
+              >
                 <span className="hidden sm:inline">Join Competition</span>
                 <span className="sm:hidden">Join</span>
-              </Link>
-            </Button>
+              </Button>
+            )}
           </div>
         </div>
       </header>
@@ -249,15 +265,26 @@ const Leaderboard = () => {
               {eventStatus === 'not_started' && 'Competition hasn\'t started yet. Check back later!'}
             </p>
             {allowPlayAccess && (
-              <Button asChild className="btn-neon text-sm sm:text-base">
-                <Link to="/play">
+              user ? (
+                <Button asChild className="btn-neon text-sm sm:text-base">
+                  <Link to="/play">
+                    {eventStatus === 'live' ? 'Join the Competition' : 'View Challenges'}
+                  </Link>
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => setAuthModalOpen(true)}
+                  className="btn-neon text-sm sm:text-base"
+                >
                   {eventStatus === 'live' ? 'Join the Competition' : 'View Challenges'}
-                </Link>
-              </Button>
+                </Button>
+              )
             )}
           </CardContent>
         </Card>
       </div>
+
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>
   );
 };

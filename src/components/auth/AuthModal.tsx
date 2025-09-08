@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { Mail, Loader2, Shield } from 'lucide-react'
+import { CodeOfConductModal } from './CodeOfConductModal'
+import { Logo } from '@/components/ui/logo'
 
 
 interface AuthModalProps {
@@ -82,7 +84,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
       setOtpSent(true)
       toast({
         title: 'Check your email!',
-        description: `We sent you a verification code to ${fullEmail}. Enter it below to continue.`,
+        description: `We sent you a verification code to ${fullEmail}. Your account will be created after you verify your email.`,
       })
     } catch (error: any) {
       toast({
@@ -120,7 +122,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
 
       toast({
         title: 'Welcome!',
-        description: 'You have been successfully signed in.',
+        description: 'Your account has been created and you are now signed in.',
       })
       onOpenChange(false)
     } catch (error: any) {
@@ -139,7 +141,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center justify-center gap-2 mb-2">
-            <img src="/logo.png" alt="Devs@PSU Logo" className="w-8 h-8" />
+            <Logo size="md" />
           </div>
           <DialogTitle className="text-gradient-cyber text-center">Join Decrypt Night</DialogTitle>
           <DialogDescription className="text-center">
@@ -154,8 +156,8 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
             </CardTitle>
             <CardDescription>
               {otpSent
-                ? 'Check your email for the verification code'
-                : 'Enter your details to login or create your account'
+                ? 'Check your email for the verification code. Your account will be created after verification.'
+                : 'Enter your details to get started. Your account will be created after email verification.'
               }
             </CardDescription>
           </CardHeader>
@@ -205,7 +207,15 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                     htmlFor="rules"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    I agree to the rules and code of conduct
+                    I agree to the rules and{' '}
+                    <CodeOfConductModal>
+                      <button
+                        type="button"
+                        className="text-primary hover:text-primary/80 underline"
+                      >
+                        code of conduct
+                      </button>
+                    </CodeOfConductModal>
                   </Label>
                 </div>
 

@@ -381,7 +381,17 @@ const Admin = () => {
     }
   };
 
-  const deleteUser = async (userId: string, userName: string, userEmail: string) => {
+  const deleteUser = async (userId: string, userName: string, userEmail: string, userRole: 'player' | 'admin' | 'owner') => {
+    // Prevent non-owners from deleting the owner
+    if (userRole === 'owner' && !isOwner) {
+      toast({
+        title: "Permission Denied",
+        description: "Only the owner can delete the owner account.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!confirm(`⚠️ DANGER: Are you sure you want to PERMANENTLY DELETE ${userName} (${userEmail})?\n\nThis will delete:\n- User account\n- All challenge progress\n- All certificates\n- All associated data\n\nThis action CANNOT be undone!`)) {
       return;
     }
@@ -403,6 +413,11 @@ const Admin = () => {
       if (error) {
         console.error('Database function error:', error);
         throw error;
+      }
+
+      // Handle the new response format
+      if (data && !data.success) {
+        throw new Error(data.message || data.error || 'Unknown error');
       }
 
       toast({
@@ -1430,7 +1445,8 @@ const Admin = () => {
                                 size="sm"
                                 variant="outline"
                                 className="btn-cyber text-red-500 border-red-500/30 hover:bg-red-500/10"
-                                onClick={() => deleteUser(user.user_id, user.full_name, user.email)}
+                                onClick={() => deleteUser(user.user_id, user.full_name, user.email, user.role)}
+                                disabled={user.role === 'owner' && !isOwner}
                               >
                                 <UserX className="w-4 h-4 mr-1" />
                                 Delete

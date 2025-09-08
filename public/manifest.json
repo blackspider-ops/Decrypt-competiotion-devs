@@ -1,6 +1,6 @@
 {
-  "name": "d3c3ypt - Cybersecurity Competition",
-  "short_name": "d3c3ypt",
+  "name": "d3crypt - Cybersecurity Competition",
+  "short_name": "d3crypt",
   "description": "Cybersecurity competition platform for solving cipher challenges",
   "start_url": "/",
   "display": "standalone",
