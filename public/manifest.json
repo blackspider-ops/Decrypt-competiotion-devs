@@ -1,0 +1,27 @@
+{
+  "name": "d3c3ypt - Cybersecurity Competition",
+  "short_name": "d3c3ypt",
+  "description": "Cybersecurity competition platform for solving cipher challenges",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#00ff00",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "games", "productivity"],
+  "lang": "en-US",
+  "dir": "ltr"
+}

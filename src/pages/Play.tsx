@@ -103,69 +103,75 @@ const Play = () => {
     <AuthGuard>
       <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-primary/20 p-4">
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button asChild variant="ghost" size="sm" className="btn-cyber">
+      <header className="mobile-header">
+        <div className="mobile-nav">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Button asChild variant="ghost" size="sm" className="btn-cyber p-2 sm:px-3">
               <Link to="/">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
+                <ArrowLeft className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Back to Home</span>
               </Link>
             </Button>
-            <h1 className="text-2xl font-bold text-gradient-cyber">{title.split(' — ')[0] || title}</h1>
+            <h1 className="text-lg sm:text-2xl font-bold text-gradient-cyber truncate">
+              {title.split(' — ')[0] || title}
+            </h1>
           </div>
           
-          <div className="flex items-center gap-4">
-            <span className="text-muted-foreground">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className="hidden md:block text-sm text-muted-foreground">
               Welcome, <span className="text-primary">{profile?.full_name}</span>
             </span>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => window.location.href = '/me'}
-            >
-              My Profile
-            </Button>
-            <Button asChild variant="outline" size="sm" className="btn-cyber">
-              <Link to="/leaderboard">Leaderboard</Link>
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="btn-cyber"
-              onClick={signOut}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
+            <div className="hidden sm:flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => window.location.href = '/me'}
+                className="text-xs sm:text-sm"
+              >
+                My Profile
+              </Button>
+              <Button asChild variant="outline" size="sm" className="btn-cyber text-xs sm:text-sm">
+                <Link to="/leaderboard">Leaderboard</Link>
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="btn-cyber text-xs sm:text-sm"
+                onClick={signOut}
+              >
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Sign Out
+              </Button>
+            </div>
+            {/* Mobile menu button would go here if needed */}
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="responsive-container py-4 sm:py-6 md:py-8">
         <div className="max-w-4xl mx-auto">
           {/* Progress and Timer */}
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium">Progress</h2>
-              <div className="flex items-center gap-6">
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground">Challenges Progress</div>
-                  <div className="font-medium">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4 gap-2">
+              <h2 className="text-base sm:text-lg font-medium">Progress</h2>
+              <div className="flex items-center gap-4 sm:gap-6">
+                <div className="text-left sm:text-right">
+                  <div className="text-xs sm:text-sm text-muted-foreground">Challenges Progress</div>
+                  <div className="font-medium text-sm sm:text-base">
                     {solvedCount} of {challenges.length} completed
                   </div>
                 </div>
               </div>
             </div>
-            <Progress value={progressPercentage} className="h-3" />
+            <Progress value={progressPercentage} className="h-2 sm:h-3" />
           </div>
 
           {/* Challenge Steps */}
-          <div className="flex justify-center mb-8">
-            <div className="flex items-center gap-4">
+          <div className="flex justify-center mb-6 sm:mb-8 overflow-x-auto pb-2">
+            <div className="flex items-center gap-2 sm:gap-4 min-w-max px-4">
               {challenges.map((_, index) => (
                 <div key={index} className="flex items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                  <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border-2 ${
                     index < (currentChallenge?.order_index || 1) - 1 
                       ? 'bg-primary border-primary text-background' 
                       : index === (currentChallenge?.order_index || 1) - 1 
@@ -173,15 +179,15 @@ const Play = () => {
                         : 'border-muted text-muted-foreground'
                   }`}>
                     {index < (currentChallenge?.order_index || 1) - 1 ? (
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
                     ) : index === (currentChallenge?.order_index || 1) - 1 ? (
-                      <span className="text-sm font-bold">{index + 1}</span>
+                      <span className="text-xs sm:text-sm font-bold">{index + 1}</span>
                     ) : (
-                      <Lock className="w-4 h-4" />
+                      <Lock className="w-3 h-3 sm:w-4 sm:h-4" />
                     )}
                   </div>
                   {index < challenges.length - 1 && (
-                    <div className={`w-12 h-0.5 mx-2 ${
+                    <div className={`w-8 sm:w-12 h-0.5 mx-1 sm:mx-2 ${
                       index < (currentChallenge?.order_index || 1) - 1 ? 'bg-primary' : 'bg-muted'
                     }`} />
                   )}
@@ -191,7 +197,7 @@ const Play = () => {
           </div>
 
           {/* Challenges */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {challenges.map((challenge, index) => {
               const challengeProgress = getChallengeProgress(challenge.id);
               const isUnlocked = isChallengeUnlocked(challenge);
@@ -213,12 +219,12 @@ const Play = () => {
 
           {/* Completed State */}
           {solvedCount === challenges.length && challenges.length > 0 && (
-            <div className="text-center py-16">
-              <div className="text-6xl mb-6">🎉</div>
-              <h2 className="text-3xl font-bold text-gradient-cyber mb-4">
+            <div className="text-center py-12 sm:py-16">
+              <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🎉</div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gradient-cyber mb-3 sm:mb-4">
                 Congratulations!
               </h2>
-              <p className="text-xl text-muted-foreground mb-8">
+              <p className="text-lg sm:text-xl text-muted-foreground mb-6 sm:mb-8 px-4">
                 You've completed all {challenges.length} challenges!
               </p>
               <Button asChild className="btn-neon">

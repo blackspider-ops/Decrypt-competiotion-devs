@@ -59,11 +59,56 @@ The application will be available at `http://localhost:8080`
 
 ### Building for Production
 
+### Prerequisites for Production
+- Node.js 18+ 
+- All environment variables configured
+- Supabase project set up with proper RLS policies
+
+### Build Commands
 ```bash
+# Install dependencies
+npm install
+
+# Build for production
 npm run build
+
+# Preview production build locally
+npm run preview
 ```
 
 The built files will be in the `dist` directory.
+
+### Production Deployment
+1. Set up environment variables in your hosting platform
+2. Build the project: `npm run build`
+3. Deploy the `dist` folder contents to your web server
+4. Configure your web server to serve `index.html` for all routes (SPA routing)
+5. Ensure HTTPS is enabled
+6. Test all functionality in production environment
+
+### Hosting Recommendations
+- **Vercel**: Zero-config deployment with automatic HTTPS
+- **Netlify**: Easy deployment with form handling and redirects
+- **AWS S3 + CloudFront**: Scalable static hosting
+- **Firebase Hosting**: Google's hosting with CDN
+
+### Performance Optimizations Included
+- ✅ Code splitting and lazy loading
+- ✅ Optimized bundle sizes
+- ✅ Image optimization ready
+- ✅ Font preloading
+- ✅ CSS purging
+- ✅ Gzip compression ready
+- ✅ Service worker for caching
+- ✅ PWA manifest for mobile installation
+
+### Responsive Design Features
+- ✅ Mobile-first responsive design
+- ✅ Touch-friendly interfaces
+- ✅ Optimized for all device sizes (320px to 2560px+)
+- ✅ Responsive tables with mobile card layouts
+- ✅ Mobile navigation with hamburger menu
+- ✅ Accessible design patterns
 
 ## Project Structure
 

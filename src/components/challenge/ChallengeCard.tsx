@@ -210,20 +210,20 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
   if (!isUnlocked) {
     return (
       <Card className="card-cyber opacity-60" data-challenge-id={challenge.id}>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-3">
-              <Lock className="w-5 h-5 text-muted-foreground" />
+              <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
               <div>
-                <CardTitle className="text-muted-foreground">
+                <CardTitle className="text-muted-foreground text-base sm:text-lg">
                   Challenge {challenge.order_index}: {challenge.title}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm">
                   Complete previous challenges to unlock
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="outline" className="text-muted-foreground border-muted">
+            <Badge variant="outline" className="text-muted-foreground border-muted self-start sm:self-center">
               {challenge.points} points
             </Badge>
           </div>
@@ -235,30 +235,28 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
   if (progress?.status === 'solved') {
     return (
       <Card className="card-cyber border-primary/50 bg-primary/5" data-challenge-id={challenge.id}>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-primary" />
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               <div>
-                <CardTitle className="text-primary">
+                <CardTitle className="text-primary text-base sm:text-lg">
                   Challenge {challenge.order_index}: {challenge.title}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm">
                   Completed in {Math.floor((progress.duration_seconds || 0) / 60)}:
                   {((progress.duration_seconds || 0) % 60).toString().padStart(2, '0')}
                 </CardDescription>
               </div>
             </div>
-            <Badge className="bg-primary text-primary-foreground">
+            <Badge className="bg-primary text-primary-foreground self-start sm:self-center">
               {calculatePoints(challenge, progress)} points
             </Badge>
           </div>
         </CardHeader>
-        <CardContent>
-
-
+        <CardContent className="px-4 sm:px-6">
           <div className="prose prose-invert max-w-none mb-4">
-            <p className="text-muted-foreground">{extractCodeBlocks(challenge.prompt_md)}</p>
+            <p className="text-muted-foreground text-sm sm:text-base">{extractCodeBlocks(challenge.prompt_md)}</p>
           </div>
           <div className="text-sm text-primary">
             ✓ Challenge completed successfully!
@@ -270,21 +268,21 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
 
   return (
     <Card className={`card-cyber ${isActive ? 'ring-2 ring-primary/50' : ''}`} data-challenge-id={challenge.id}>
-      <CardHeader>
-        <div className="flex items-center justify-between">
+      <CardHeader className="px-4 sm:px-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
           <div>
-            <CardTitle className="text-2xl text-gradient-cyber">
+            <CardTitle className="text-lg sm:text-xl lg:text-2xl text-gradient-cyber">
               Challenge {challenge.order_index}: {challenge.title}
             </CardTitle>
-            <CardDescription className="mt-2">
+            <CardDescription className="mt-1 sm:mt-2 text-sm">
               {isActive ? 'Current challenge - solve to unlock the next one' : 'Available challenge'}
             </CardDescription>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 self-start lg:self-center">
             {isUnlocked && progress && (progress.status as ChallengeProgress['status']) !== 'solved' && (
               <Badge
                 variant="outline"
-                className={`border-primary/50 ${challengeTimer > 120
+                className={`border-primary/50 text-xs ${challengeTimer > 120
                   ? 'text-orange-400 border-orange-400/50'
                   : challengeTimer > 90
                     ? 'text-yellow-400 border-yellow-400/50'
@@ -296,18 +294,16 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
                 {challengeTimer > 120 && <span className="ml-1 text-xs">(-{calculateLocalTimePenalty(challengeTimer)})</span>}
               </Badge>
             )}
-            <Badge variant="outline" className="text-primary border-primary/50">
+            <Badge variant="outline" className="text-primary border-primary/50 text-xs">
               {calculateLocalPoints(challenge, progress)} / {challenge.points} points
             </Badge>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
-
-
+      <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
         <div className="prose prose-invert max-w-none">
-          <p className="text-lg leading-relaxed">{extractCodeBlocks(challenge.prompt_md)}</p>
+          <p className="text-base sm:text-lg leading-relaxed">{extractCodeBlocks(challenge.prompt_md)}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -320,20 +316,20 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
               value={answer}
               onChange={handleInputChange}
               placeholder="Enter your answer here..."
-              className="bg-background/50 border-primary/30 focus:border-primary"
+              className="bg-background/50 border-primary/30 focus:border-primary text-sm sm:text-base"
               disabled={submitting}
             />
           </div>
 
-          <div className="flex gap-3">
-            <Button type="submit" className="btn-neon" disabled={submitting || !answer.trim()}>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button type="submit" className="btn-neon text-sm sm:text-base" disabled={submitting || !answer.trim()}>
               {submitting ? 'Submitting...' : 'Submit Answer'}
             </Button>
             {challenge.hint_md && (
               <Button
                 type="button"
                 variant="outline"
-                className="btn-cyber"
+                className="btn-cyber text-sm sm:text-base"
                 onClick={async () => {
                   if (!hintUnlocked) {
                     // First time clicking - unlock the hint
@@ -364,19 +360,19 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
         </form>
 
         {showHint && hintUnlocked && challenge.hint_md && (
-          <div className="bg-accent/10 border border-accent/30 rounded-lg p-4">
+          <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 sm:p-4">
             <div className="flex items-center gap-2 mb-2">
               <Lightbulb className="w-4 h-4 text-accent" />
-              <span className="text-sm font-medium text-accent">
+              <span className="text-xs sm:text-sm font-medium text-accent">
                 Hint (-{getCurrentHintCost()} points deducted)
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">{challenge.hint_md}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{challenge.hint_md}</p>
           </div>
         )}
 
         {progress && progress.attempts > 0 && (
-          <div className="text-sm text-muted-foreground space-y-1">
+          <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
             <p>
               <strong>Attempts:</strong> {progress.attempts}
               {progress.incorrect_attempts > 0 && ` (${progress.incorrect_attempts} incorrect)`}
