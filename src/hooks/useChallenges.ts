@@ -367,11 +367,6 @@ export const useChallenges = () => {
         // Force re-render
         setRefreshTrigger(prev => prev + 1)
         
-        // Refresh the page after a short delay to show the next challenge
-        setTimeout(() => {
-          window.location.reload()
-        }, 1500)
-        
         return true
       } else {
         // Update incorrect attempts
