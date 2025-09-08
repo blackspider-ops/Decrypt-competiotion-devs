@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Decrypt Night - Cybersecurity Competition Design System */
+
+@layer base {
+  :root {
+    /* Dark theme base colors */
+    --background: 222 15% 8%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 15% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 15% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Neon green primary for cybersec theme */
+    --primary: 120 100% 50%;
+    --primary-foreground: 222 15% 8%;
+    --primary-glow: 120 100% 70%;
+
+    /* Dark secondary */
+    --secondary: 222 15% 15%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222 15% 12%;
+    --muted-foreground: 215 15% 65%;
+
+    /* Neon cyan accent */
+    --accent: 180 100% 50%;
+    --accent-foreground: 222 15% 8%;
+    --accent-glow: 180 100% 70%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 15% 20%;
+    --input: 222 15% 15%;
+    --ring: 120 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Custom design tokens */
+    --gradient-cyber: linear-gradient(135deg, hsl(var(--primary) / 0.8), hsl(var(--accent) / 0.6));
+    --gradient-card: linear-gradient(180deg, hsl(var(--card)), hsl(222 15% 8%));
+    --shadow-neon: 0 0 20px hsl(var(--primary) / 0.3);
+    --shadow-cyber: 0 0 40px hsl(var(--accent) / 0.2);
+    --transition-cyber: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Animation variables */
+    --pulse-duration: 2s;
+    --glow-intensity: 0.6;
+
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Cyber scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/30 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/50;
+  }
+}
+
+@layer components {
+  /* Cyber button variants */
+  .btn-cyber {
+    @apply bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/50 text-foreground;
+    @apply hover:from-primary/30 hover:to-accent/30 hover:border-primary hover:shadow-neon;
+    @apply transition-all duration-300 relative overflow-hidden;
+  }
+  
+  .btn-cyber::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent;
+    @apply translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-700;
+  }
+
+  .btn-neon {
+    @apply bg-primary text-primary-foreground shadow-neon;
+    @apply hover:shadow-cyber hover:scale-105 transition-all duration-300;
+  }
+
+  .card-cyber {
+    @apply bg-card/50 backdrop-blur-sm border border-primary/20 rounded-2xl;
+    @apply shadow-lg hover:shadow-neon transition-all duration-300;
+  }
+
+  .glow-text {
+    text-shadow: 0 0 10px hsl(var(--primary) / 0.5);
+  }
+
+  .pulse-cyber {
+    animation: pulse-cyber var(--pulse-duration) ease-in-out infinite;
+  }
+}
+
+@layer utilities {
+  .text-gradient-cyber {
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+  
+  .border-gradient {
+    border-image: linear-gradient(90deg, hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.5)) 1;
+  }
+}
+
+/* Keyframes */
+@keyframes pulse-cyber {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 10px hsl(var(--primary) / 0.5);
+  }
+  50% {
+    opacity: 0.8;
+    text-shadow: 0 0 20px hsl(var(--primary) / var(--glow-intensity));
+  }
+}
