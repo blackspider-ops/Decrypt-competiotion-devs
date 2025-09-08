@@ -367,6 +367,14 @@ export const useChallenges = () => {
         // Force re-render
         setRefreshTrigger(prev => prev + 1)
         
+        // Refresh challenges and progress data immediately
+        await fetchChallengesAndProgress()
+        
+        // Force page refresh after a delay to show next challenge
+        setTimeout(() => {
+          window.location.href = window.location.href
+        }, 1500)
+        
         return true
       } else {
         // Update incorrect attempts
