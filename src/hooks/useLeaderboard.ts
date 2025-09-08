@@ -58,17 +58,19 @@ export const useLeaderboard = () => {
 
       if (!joinError && usersWithProfiles) {
         // Transform the data to match our interface
-        const transformedData = usersWithProfiles.map(item => ({
-          user_id: item.user_id,
-          full_name: item.profiles?.full_name || `User ${item.user_id.substring(0, 8)}`,
-          email: item.profiles?.email || 'No email',
-          role: item.profiles?.role || 'player',
-          current_challenge_index: item.current_challenge_index,
-          challenges_solved: item.solved_count || 0,
-          total_points: item.total_points || 0,
-          total_time_seconds: item.total_time_seconds || 0,
-          last_solve_at: item.last_solve_at
-        }))
+        const transformedData = usersWithProfiles
+          .map(item => ({
+            user_id: item.user_id,
+            full_name: item.profiles?.full_name || `User ${item.user_id.substring(0, 8)}`,
+            email: item.profiles?.email || 'No email',
+            role: item.profiles?.role || 'player',
+            current_challenge_index: item.current_challenge_index,
+            challenges_solved: item.solved_count || 0,
+            total_points: item.total_points || 0,
+            total_time_seconds: item.total_time_seconds || 0,
+            last_solve_at: item.last_solve_at
+          }))
+          .filter(user => user.role !== 'admin') // Exclude admin accounts from leaderboard
 
         setLeaderboard(transformedData)
       } else {
@@ -94,17 +96,19 @@ export const useLeaderboard = () => {
         });
 
         // Transform the data to match our interface
-        const transformedData = (data || []).map(item => ({
-          user_id: item.user_id,
-          full_name: profilesMap[item.user_id]?.full_name || `User ${item.user_id.substring(0, 8)}`,
-          email: profilesMap[item.user_id]?.email || 'No email',
-          role: profilesMap[item.user_id]?.role || 'player',
-          current_challenge_index: item.current_challenge_index,
-          challenges_solved: item.solved_count || 0,
-          total_points: item.total_points || 0,
-          total_time_seconds: item.total_time_seconds || 0,
-          last_solve_at: item.last_solve_at
-        }))
+        const transformedData = (data || [])
+          .map(item => ({
+            user_id: item.user_id,
+            full_name: profilesMap[item.user_id]?.full_name || `User ${item.user_id.substring(0, 8)}`,
+            email: profilesMap[item.user_id]?.email || 'No email',
+            role: profilesMap[item.user_id]?.role || 'player',
+            current_challenge_index: item.current_challenge_index,
+            challenges_solved: item.solved_count || 0,
+            total_points: item.total_points || 0,
+            total_time_seconds: item.total_time_seconds || 0,
+            last_solve_at: item.last_solve_at
+          }))
+          .filter(user => user.role !== 'admin') // Exclude admin accounts from leaderboard
 
         setLeaderboard(transformedData)
       }
