@@ -392,8 +392,8 @@ const Admin = () => {
     }
 
     try {
-      // Use the database function to delete user and all data
-      const { data, error } = await (supabase.rpc as any)('delete_user_completely', {
+      // First delete user data from our tables
+      const { data, error } = await (supabase as any).rpc('delete_user_completely', {
         target_user_id: userId
       });
 
@@ -405,6 +405,18 @@ const Admin = () => {
       // Handle the new response format
       if (data && !data.success) {
         throw new Error(data.message || data.error || 'Unknown error');
+      }
+
+      // Then delete from auth system using admin API
+      try {
+        const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+        if (authError) {
+          console.warn('Could not delete from auth system:', authError.message);
+          // Don't throw here - the user data is already deleted
+        }
+      } catch (authError) {
+        console.warn('Auth deletion failed:', authError);
+        // Continue anyway - user data is deleted
       }
 
       toast({
@@ -737,12 +749,17 @@ const Admin = () => {
         return;
       }
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('user_id', userId);
+      const { data, error } = await (supabase as any).rpc('update_user_role', {
+        target_user_id: userId,
+        new_role: newRole
+      });
 
       if (error) throw error;
+
+      // Check if the function returned an error
+      if (data && !(data as any).success) {
+        throw new Error((data as any).error || 'Unknown error');
+      }
 
       // Update local state
       setUsers(prevUsers =>
@@ -767,7 +784,7 @@ const Admin = () => {
 
   const setInitialOwner = async (email: string) => {
     try {
-      const { data, error } = await supabase.rpc('set_owner_by_email', {
+      const { data, error } = await (supabase as any).rpc('set_owner_by_email', {
         owner_email: email
       });
 
