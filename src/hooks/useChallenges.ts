@@ -51,7 +51,6 @@ export const useChallenges = () => {
     const prevChallenge = challenges.find(c => c.order_index === prevChallengeIndex)
     
     if (!prevChallenge) {
-      console.log(`No previous challenge found for challenge ${challenge.order_index}`)
       return false
     }
     
@@ -378,7 +377,6 @@ export const useChallenges = () => {
         return true
       } else {
         // Update incorrect attempts
-        console.log('Answer is incorrect, updating attempts')
         const upsertData = {
           user_id: user.id,
           challenge_id: challengeId,
@@ -388,7 +386,6 @@ export const useChallenges = () => {
           hints_used: currentProgress?.hints_used || 0,
           status: currentProgress?.status || 'in_progress'
         }
-        console.log('Upserting incorrect attempt data:', upsertData)
         
         const { error } = await supabase
           .from('challenge_progress')
@@ -400,7 +397,6 @@ export const useChallenges = () => {
           console.error('Error upserting incorrect attempt:', error)
           throw error
         }
-        console.log('Successfully updated incorrect attempt')
 
         toast({
           title: 'Incorrect',
@@ -480,7 +476,6 @@ export const useChallenges = () => {
         
         setProgress(prevProgress => {
           const updated = [...prevProgress, newProgress]
-          console.log('Updated progress after hint (new challenge):', updated)
           return updated
         })
         setRefreshTrigger(prev => prev + 1)
@@ -524,8 +519,6 @@ export const useChallenges = () => {
           if (existingIndex >= 0) {
             const newProgress = [...prevProgress]
             newProgress[existingIndex] = { ...newProgress[existingIndex], hints_used: newHintsUsed }
-            console.log('Updated local progress with hints:', newProgress[existingIndex])
-            console.log('Full updated progress array:', newProgress)
             return newProgress
           }
           return prevProgress

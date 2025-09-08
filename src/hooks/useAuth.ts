@@ -88,30 +88,11 @@ export const useAuth = () => {
         return
       }
 
-      if (!data) {
-        // Create if missing
-        const { data: { user } } = await supabase.auth.getUser()
-        
-        const profileData = {
-          user_id: userId,
-          full_name: user?.user_metadata?.full_name || '',
-          email: user?.user_metadata?.email || user?.email || '',
-          role: 'player' as const
-        }
-        
-        const { data: newProfile, error: createError } = await supabase
-          .from('profiles')
-          .insert([profileData])
-          .select()
-          .maybeSingle()
-
-        if (!createError && newProfile) {
-          setProfile(newProfile as any)
-          return
-        }
-      } else {
+      if (data) {
         setProfile(data as any)
-        return
+      } else {
+        // Profile doesn't exist - this is normal for unverified users
+        setProfile(null)
       }
     } catch (error) {
       console.error('Error fetching profile:', error)

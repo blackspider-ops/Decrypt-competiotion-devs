@@ -29,10 +29,7 @@ const Index = () => {
       const accessToken = hashParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token');
 
-      console.log('URL params check:', { error, errorCode, errorDescription, accessToken: !!accessToken, refreshToken: !!refreshToken });
-
       if (error) {
-        console.log('Auth error detected:', error, errorCode, errorDescription);
 
         // Clean the URL
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -57,13 +54,10 @@ const Index = () => {
 
       // If we have auth tokens in the URL, try to establish session
       if (accessToken && refreshToken) {
-        console.log('Auth tokens found in URL, attempting to establish session...');
-
         try {
           // Wait a moment for Supabase to process the tokens
           setTimeout(async () => {
             const { data, error: sessionError } = await supabase.auth.getSession();
-            console.log('Session check after magic link:', { data: data.session?.user?.email, error: sessionError });
 
             if (data.session?.user) {
               toast({

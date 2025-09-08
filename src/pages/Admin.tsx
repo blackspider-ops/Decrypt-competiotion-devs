@@ -131,7 +131,6 @@ const Admin = () => {
       setChallenges(challengesData || []);
 
       // Fetch user summaries and profiles separately
-      console.log('Fetching users with separate queries');
 
       const { data: usersData, error: usersError } = await supabase
         .from('user_summary')
@@ -226,12 +225,10 @@ const Admin = () => {
         console.error('Error fetching certificates:', certsError);
         setCertificates([]);
       } else {
-        console.log('Raw certificates data:', certificatesData);
         if (certificatesData && certificatesData.length > 0) {
           // Get user details for each certificate
           const certificatesWithUsers = await Promise.all(
             certificatesData.map(async (cert) => {
-              console.log('Looking up user:', cert.user_id);
               // Try both id and user_id columns to find the user
               let userProfile = null;
               let userError = null;
@@ -257,7 +254,7 @@ const Admin = () => {
                 userError = errorByUserId;
               }
 
-              console.log('User lookup result:', userProfile, userError || errorById);
+
 
               if (userError) {
                 console.error('Error fetching user for certificate:', cert.id, userError);
@@ -272,10 +269,8 @@ const Admin = () => {
               };
             })
           );
-          console.log('Certificates with users:', certificatesWithUsers);
           setCertificates(certificatesWithUsers);
         } else {
-          console.log('No certificates found');
           setCertificates([]);
         }
       }
@@ -350,14 +345,10 @@ const Admin = () => {
     }
 
     try {
-      console.log('Attempting to reset progress for user:', userId);
-
       // Use the database function we created
       const { data, error } = await (supabase.rpc as any)('reset_user_progress', {
         target_user_id: userId
       });
-
-      console.log('Database function result:', { data, error });
 
       if (error) {
         console.error('Database function error:', error);
@@ -401,14 +392,10 @@ const Admin = () => {
     }
 
     try {
-      console.log('Attempting to delete user completely:', userId);
-
       // Use the database function to delete user and all data
       const { data, error } = await (supabase.rpc as any)('delete_user_completely', {
         target_user_id: userId
       });
-
-      console.log('Delete user result:', { data, error });
 
       if (error) {
         console.error('Database function error:', error);
@@ -447,12 +434,8 @@ const Admin = () => {
     }
 
     try {
-      console.log('Attempting to reset all progress...');
-
       // Use database function to reset all progress
       const { data, error } = await (supabase.rpc as any)('reset_all_progress');
-
-      console.log('Reset all result:', { data, error });
 
       if (error) {
         console.error('Database error:', error);
@@ -561,7 +544,6 @@ const Admin = () => {
 
   const uploadCertificatePDF = async (file: File, certificateId: number): Promise<string | null> => {
     try {
-      console.log('Uploading file:', file.name, 'Size:', file.size);
       const fileExt = file.name.split('.').pop();
       const fileName = `certificate_${certificateId}_${Date.now()}.${fileExt}`;
 
@@ -574,13 +556,9 @@ const Admin = () => {
         throw error;
       }
 
-      console.log('Upload successful:', data);
-
       const { data: { publicUrl } } = supabase.storage
         .from('certificates')
         .getPublicUrl(fileName);
-
-      console.log('Public URL:', publicUrl);
       return publicUrl;
     } catch (error) {
       console.error('Error uploading certificate:', error);

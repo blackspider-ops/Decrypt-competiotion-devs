@@ -29,7 +29,6 @@ export const AuthGuard = ({ children, requireAdmin = false }: AuthGuardProps) =>
       }
       
       if (profile.role !== 'admin' && profile.role !== 'owner') {
-        console.log('Access denied: user role is', profile.role, 'but admin required')
         navigate('/', { replace: true })
         return
       }

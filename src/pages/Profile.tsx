@@ -139,7 +139,7 @@ const Profile = () => {
   const pendingCertificates = certificates.filter(cert => cert.status === 'pending');
   
 
-  console.log('Pending certificates:', pendingCertificates);
+
 
   return (
     <AuthGuard>
