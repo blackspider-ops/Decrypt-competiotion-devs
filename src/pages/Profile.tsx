@@ -186,7 +186,7 @@ const Profile = () => {
                 <div className="flex flex-wrap items-center gap-4">
                   <Badge className="bg-primary/20 text-primary border-primary/30 px-4 py-2 text-base">
                     <Shield className="w-4 h-4 mr-2" />
-                    {profile?.role === 'admin' ? 'Administrator' : 'Member'}
+                    {profile?.role === 'owner' ? 'Owner' : profile?.role === 'admin' ? 'Administrator' : 'Member'}
                   </Badge>
                   
                   {userRank > 0 && (

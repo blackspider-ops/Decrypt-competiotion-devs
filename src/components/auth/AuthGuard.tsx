@@ -28,7 +28,7 @@ export const AuthGuard = ({ children, requireAdmin = false }: AuthGuardProps) =>
         return
       }
       
-      if (profile.role !== 'admin') {
+      if (profile.role !== 'admin' && profile.role !== 'owner') {
         console.log('Access denied: user role is', profile.role, 'but admin required')
         navigate('/', { replace: true })
         return
@@ -52,7 +52,7 @@ export const AuthGuard = ({ children, requireAdmin = false }: AuthGuardProps) =>
   }
 
   // For admin routes, wait for profile to load
-  if (requireAdmin && (!profile || profile.role !== 'admin')) {
+  if (requireAdmin && (!profile || (profile.role !== 'admin' && profile.role !== 'owner'))) {
     if (!profile) {
       // Still loading profile, show loading state
       return (

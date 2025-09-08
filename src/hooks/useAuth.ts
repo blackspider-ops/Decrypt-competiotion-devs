@@ -7,7 +7,7 @@ interface Profile {
   id: string
   full_name: string
   email: string
-  role: 'player' | 'admin'
+  role: 'player' | 'admin' | 'owner'
   created_at: string
   updated_at: string
 }
@@ -131,6 +131,7 @@ export const useAuth = () => {
     session,
     loading,
     signOut,
-    isAdmin: profile?.role === 'admin'
+    isAdmin: profile?.role === 'admin' || profile?.role === 'owner',
+    isOwner: profile?.role === 'owner'
   }
 }

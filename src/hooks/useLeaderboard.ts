@@ -6,7 +6,7 @@ interface UserSummary {
   user_id: string
   full_name: string
   email: string
-  role: 'player' | 'admin'
+  role: 'player' | 'admin' | 'owner'
   current_challenge_index: number
   challenges_solved: number
   total_points: number
@@ -70,7 +70,7 @@ export const useLeaderboard = () => {
             total_time_seconds: item.total_time_seconds || 0,
             last_solve_at: item.last_solve_at
           }))
-          .filter(user => user.role !== 'admin') // Exclude admin accounts from leaderboard
+          .filter(user => user.role !== 'admin' && user.role !== 'owner') // Exclude admin and owner accounts from leaderboard
 
         setLeaderboard(transformedData)
       } else {
@@ -108,7 +108,7 @@ export const useLeaderboard = () => {
             total_time_seconds: item.total_time_seconds || 0,
             last_solve_at: item.last_solve_at
           }))
-          .filter(user => user.role !== 'admin') // Exclude admin accounts from leaderboard
+          .filter(user => user.role !== 'admin' && user.role !== 'owner') // Exclude admin and owner accounts from leaderboard
 
         setLeaderboard(transformedData)
       }

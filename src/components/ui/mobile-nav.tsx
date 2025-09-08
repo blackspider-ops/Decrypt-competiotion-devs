@@ -40,7 +40,7 @@ export const MobileNav = ({ title, showUserActions = true }: MobileNavProps) => 
                 {profile?.full_name || 'Profile'}
               </Link>
             </Button>
-            {profile?.role === 'admin' && (
+            {(profile?.role === 'admin' || profile?.role === 'owner') && (
               <Button 
                 asChild
                 variant="ghost" 
@@ -131,7 +131,7 @@ export const MobileNav = ({ title, showUserActions = true }: MobileNavProps) => 
                         My Profile
                       </Link>
                     </Button>
-                    {profile?.role === 'admin' && (
+                    {(profile?.role === 'admin' || profile?.role === 'owner') && (
                       <Button 
                         asChild
                         variant="ghost" 

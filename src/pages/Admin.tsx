@@ -15,6 +15,7 @@ import { ArrowLeft, Settings, Users, Trophy, Play, Pause, RotateCcw, Edit, Trash
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEventInfo } from "@/hooks/useEventInfo";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 interface Challenge {
@@ -33,7 +34,7 @@ interface UserSummary {
   user_id: string
   full_name: string
   email: string
-  role: 'player' | 'admin'
+  role: 'player' | 'admin' | 'owner'
   challenges_solved: number
   total_points: number
   total_time_seconds: number
@@ -67,6 +68,7 @@ interface Certificate {
 }
 
 const Admin = () => {
+  const { profile, isOwner } = useAuth();
   const [eventStatus, setEventStatus] = useState<"not_started" | "live" | "paused" | "ended">("live");
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [users, setUsers] = useState<UserSummary[]>([]);
@@ -730,8 +732,18 @@ const Admin = () => {
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: 'player' | 'admin', userName: string) => {
+  const updateUserRole = async (userId: string, newRole: 'player' | 'admin' | 'owner', userName: string) => {
     try {
+      // Additional check for owner role changes
+      if (newRole === 'owner' && !isOwner) {
+        toast({
+          title: "Error",
+          description: "Only the current owner can transfer ownership",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('profiles')
         .update({ role: newRole })
@@ -755,6 +767,31 @@ const Admin = () => {
       toast({
         title: "Error",
         description: "Failed to update user role",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const setInitialOwner = async (email: string) => {
+    try {
+      const { data, error } = await supabase.rpc('set_owner_by_email', {
+        owner_email: email
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: data || "Owner set successfully",
+      });
+
+      // Refresh data
+      await fetchData();
+    } catch (error) {
+      console.error('Error setting owner:', error);
+      toast({
+        title: "Error",
+        description: "Failed to set owner",
         variant: "destructive"
       });
     }
@@ -1300,14 +1337,25 @@ const Admin = () => {
           <TabsContent value="users" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gradient-cyber">User Management</h2>
-              <Button
-                variant="outline"
-                className="btn-cyber text-red-400 border-red-400/30 hover:bg-red-400/10"
-                onClick={resetAllProgress}
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset All Progress
-              </Button>
+              <div className="flex gap-2">
+                {!users.some(user => user.role === 'owner') && (
+                  <Button
+                    variant="outline"
+                    className="btn-cyber text-yellow-400 border-yellow-400/30 hover:bg-yellow-400/10"
+                    onClick={() => setInitialOwner('tms7397@psu.edu')}
+                  >
+                    Set tms7397 as Owner
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  className="btn-cyber text-red-400 border-red-400/30 hover:bg-red-400/10"
+                  onClick={resetAllProgress}
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reset All Progress
+                </Button>
+              </div>
             </div>
 
             <Card className="card-cyber">
@@ -1340,7 +1388,8 @@ const Admin = () => {
                           <TableCell>
                             <Select
                               value={user.role}
-                              onValueChange={(newRole: 'player' | 'admin') => updateUserRole(user.user_id, newRole, user.full_name)}
+                              onValueChange={(newRole: 'player' | 'admin' | 'owner') => updateUserRole(user.user_id, newRole, user.full_name)}
+                              disabled={user.role === 'owner' && !isOwner}
                             >
                               <SelectTrigger className="w-24">
                                 <SelectValue />
@@ -1348,6 +1397,9 @@ const Admin = () => {
                               <SelectContent>
                                 <SelectItem value="player">Player</SelectItem>
                                 <SelectItem value="admin">Admin</SelectItem>
+                                {isOwner && (
+                                  <SelectItem value="owner">Owner</SelectItem>
+                                )}
                               </SelectContent>
                             </Select>
                           </TableCell>
