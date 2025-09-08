@@ -120,15 +120,20 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
 
       if (error) throw error
 
-      // Manually create the profile after successful verification
+      // Manually ensure the profile exists after successful verification
       if (data.user) {
-        const { error: profileError } = await supabase.rpc('create_profile_after_verification', {
-          user_id: data.user.id
-        })
-        
-        if (profileError) {
-          console.error('Error creating profile:', profileError)
-          // Don't throw here - user is authenticated, profile creation is secondary
+        try {
+          const { error: profileError } = await (supabase as any).rpc('ensure_user_profile', {
+            target_user_id: data.user.id
+          })
+          
+          if (profileError) {
+            console.error('Error ensuring profile:', profileError)
+            // Don't throw here - user is authenticated, profile creation is secondary
+          }
+        } catch (error) {
+          console.error('Profile creation failed:', error)
+          // Continue anyway - user is authenticated
         }
       }
 

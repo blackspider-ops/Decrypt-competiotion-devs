@@ -57,13 +57,15 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
   const { submitAnswer, startChallenge, useHint, calculatePoints } = useChallenges()
   const { toast } = useToast()
 
-  // Auto-start challenge when it becomes unlocked and is the current active challenge
+  // Auto-start challenges except for the first one (order_index 1)
   useEffect(() => {
     if (isActive && isUnlocked && !progress?.started_at && progress?.status && progress.status !== 'solved') {
-      // Automatically start the challenge when it becomes the active challenge
-      startChallenge(challenge.id)
+      // Only auto-start if it's NOT the first challenge
+      if (challenge.order_index > 1) {
+        startChallenge(challenge.id)
+      }
     }
-  }, [isActive, isUnlocked, progress?.started_at, progress?.status, challenge.id, startChallenge])
+  }, [isActive, isUnlocked, progress?.started_at, progress?.status, challenge.id, challenge.order_index, startChallenge])
 
   // Check if hint has been unlocked based on hints_used
   useEffect(() => {
@@ -130,6 +132,11 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
     if (!answer.trim()) return
 
     setSubmitting(true)
+
+    // Start challenge on first interaction (submit) - only for first challenge
+    if (!progress?.started_at && challenge.order_index === 1) {
+      await startChallenge(challenge.id)
+    }
 
     // submitAnswer now handles starting the challenge automatically
     const success = await submitAnswer(challenge.id, answer)
@@ -279,19 +286,20 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
             </CardDescription>
           </div>
           <div className="flex flex-wrap items-center gap-2 self-start lg:self-center">
-            {isUnlocked && progress && (progress.status as ChallengeProgress['status']) !== 'solved' && (
+            {isUnlocked && (progress?.status as ChallengeProgress['status']) !== 'solved' && (
               <Badge
                 variant="outline"
-                className={`border-primary/50 text-xs ${challengeTimer > 120
-                  ? 'text-orange-400 border-orange-400/50'
-                  : challengeTimer > 90
-                    ? 'text-yellow-400 border-yellow-400/50'
-                    : 'text-primary'
-                  }`}
+                className={`border-primary/50 text-xs ${
+                  challengeTimer > 120
+                      ? 'text-orange-400 border-orange-400/50'
+                      : challengeTimer > 90
+                        ? 'text-yellow-400 border-yellow-400/50'
+                        : 'text-primary'
+                }`}
               >
                 <Timer className="w-3 h-3 mr-1" />
                 {formatTime(challengeTimer)}
-                {challengeTimer > 120 && <span className="ml-1 text-xs">(-{calculateLocalTimePenalty(challengeTimer)})</span>}
+                {progress?.started_at && challengeTimer > 120 && <span className="ml-1 text-xs">(-{calculateLocalTimePenalty(challengeTimer)})</span>}
               </Badge>
             )}
             <Badge variant="outline" className="text-primary border-primary/50 text-xs">
@@ -332,6 +340,11 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
                 className="btn-cyber text-sm sm:text-base"
                 onClick={async () => {
                   if (!hintUnlocked) {
+                    // Start challenge on first interaction (hint request) - only for first challenge
+                    if (!progress?.started_at && challenge.order_index === 1) {
+                      await startChallenge(challenge.id)
+                    }
+                    
                     // First time clicking - unlock the hint
                     try {
                       await useHint(challenge.id)

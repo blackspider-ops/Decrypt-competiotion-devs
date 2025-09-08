@@ -103,6 +103,17 @@ export const useChallenges = () => {
 
         const nextChallenge = challengesData.find(c => !solvedChallengeIds.includes(c.id))
         setCurrentChallenge(nextChallenge || null)
+
+        // Auto-start challenge 1 if it's the current challenge and hasn't been started yet
+        if (nextChallenge && nextChallenge.order_index === 1) {
+          const challenge1Progress = (progressData || []).find(p => p.challenge_id === nextChallenge.id)
+          if (!challenge1Progress?.started_at) {
+            // Start challenge 1 automatically when user first visits play page
+            setTimeout(() => {
+              startChallenge(nextChallenge.id)
+            }, 500) // Small delay to ensure everything is loaded
+          }
+        }
       }
     } catch (error) {
       console.error('Error fetching challenges:', error)
@@ -205,19 +216,15 @@ export const useChallenges = () => {
       if (!currentProgress?.started_at) {
         // Start the challenge NOW - this is when the timer should begin
         startTime = new Date()
-        const { error } = await supabase
-          .from('challenge_progress')
-          .insert([
-            {
-              user_id: user.id,
-              challenge_id: challengeId,
-              started_at: startTime.toISOString(),
-              status: 'in_progress',
-              attempts: 0,
-              incorrect_attempts: 0,
-              hints_used: 0
-            }
-          ])
+        const { data, error } = await (supabase as any).rpc('upsert_challenge_progress', {
+          p_user_id: user.id,
+          p_challenge_id: challengeId,
+          p_status: 'in_progress',
+          p_started_at: startTime.toISOString(),
+          p_attempts: 0,
+          p_incorrect_attempts: 0,
+          p_hints_used: 0
+        })
         
         if (error) throw error
         
@@ -324,19 +331,15 @@ export const useChallenges = () => {
         // Auto-start the next challenge immediately
         if (nextChallenge) {
           const nextStartTime = new Date()
-          const { error: nextError } = await supabase
-            .from('challenge_progress')
-            .insert([
-              {
-                user_id: user.id,
-                challenge_id: nextChallenge.id,
-                started_at: nextStartTime.toISOString(),
-                status: 'in_progress',
-                attempts: 0,
-                incorrect_attempts: 0,
-                hints_used: 0
-              }
-            ])
+          const { data: nextData, error: nextError } = await (supabase as any).rpc('upsert_challenge_progress', {
+            p_user_id: user.id,
+            p_challenge_id: nextChallenge.id,
+            p_status: 'in_progress',
+            p_started_at: nextStartTime.toISOString(),
+            p_attempts: 0,
+            p_incorrect_attempts: 0,
+            p_hints_used: 0
+          })
 
           if (!nextError) {
             // Update local progress with the new challenge
@@ -444,19 +447,15 @@ export const useChallenges = () => {
       if (!currentProgress?.started_at) {
         // Start the challenge NOW when hint is used - this is when the timer should begin
         const startTime = new Date()
-        const { error: insertError } = await supabase
-          .from('challenge_progress')
-          .insert([
-            {
-              user_id: user.id,
-              challenge_id: challengeId,
-              started_at: startTime.toISOString(),
-              status: 'in_progress',
-              attempts: 0,
-              incorrect_attempts: 0,
-              hints_used: 1
-            }
-          ])
+        const { data: insertData, error: insertError } = await (supabase as any).rpc('upsert_challenge_progress', {
+          p_user_id: user.id,
+          p_challenge_id: challengeId,
+          p_status: 'in_progress',
+          p_started_at: startTime.toISOString(),
+          p_attempts: 0,
+          p_incorrect_attempts: 0,
+          p_hints_used: 1
+        })
         
         if (insertError) throw insertError
         
