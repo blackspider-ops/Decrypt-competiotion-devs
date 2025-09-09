@@ -537,12 +537,12 @@ export const useChallenges = () => {
   }
 
   const calculateTimePenalty = (durationSeconds: number) => {
-    // Time penalty: 1 point per 15 seconds after the first 2 minutes
+    // Time penalty: 1 point per 45 seconds after the first 2 minutes
     const gracePeriod = 120 // 2 minutes grace period
     if (durationSeconds <= gracePeriod) return 0
     
     const excessTime = durationSeconds - gracePeriod
-    const timePenalty = Math.floor(excessTime / 15) // 1 point per 15 seconds
+    const timePenalty = Math.floor(excessTime / 45) // 1 point per 45 seconds
     return Math.min(timePenalty, 100) // Cap time penalty at 100 points
   }
 
@@ -559,7 +559,7 @@ export const useChallenges = () => {
     
     // Time penalty to match database calculation  
     const timePenalty = progress.duration_seconds && progress.duration_seconds > 120 ? 
-      Math.min(100, Math.floor((progress.duration_seconds - 120) / 15)) : 0
+      Math.min(100, Math.floor((progress.duration_seconds - 120) / 45)) : 0
     
     const finalPoints = Math.max(1, basePoints - incorrectPenalty - hintPenalty - timePenalty)
     

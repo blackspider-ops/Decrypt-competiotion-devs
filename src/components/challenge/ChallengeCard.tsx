@@ -175,12 +175,12 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
   }
 
   const calculateLocalTimePenalty = (durationSeconds: number) => {
-    // Time penalty: 1 point per 15 seconds after the first 2 minutes
+    // Time penalty: 1 point per 45 seconds after the first 2 minutes
     const gracePeriod = 120 // 2 minutes grace period
     if (durationSeconds <= gracePeriod) return 0
 
     const excessTime = durationSeconds - gracePeriod
-    const timePenalty = Math.floor(excessTime / 15) // 1 point per 15 seconds
+    const timePenalty = Math.floor(excessTime / 45) // 1 point per 45 seconds
     return Math.min(timePenalty, 100) // Cap time penalty at 100 points
   }
 

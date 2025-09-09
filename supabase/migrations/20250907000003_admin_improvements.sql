@@ -115,7 +115,7 @@ BEGIN
         END -
         CASE 
           WHEN cp.duration_seconds > 120 THEN 
-            LEAST(100, FLOOR((cp.duration_seconds - 120) / 15)) -- Time penalty after 2 minutes
+            LEAST(100, FLOOR((cp.duration_seconds - 120) / 45)) -- Time penalty after 2 minutes
           ELSE 0 
         END
       )
