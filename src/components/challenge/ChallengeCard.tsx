@@ -38,6 +38,7 @@ import { useChallenges } from '@/hooks/useChallenges'
 import { supabase } from '@/integrations/supabase/client'
 import { Lightbulb, CheckCircle2, Lock, Timer } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { useEventStatus } from '@/hooks/useEventStatus'
 
 interface ChallengeCardProps {
   challenge: Challenge
@@ -54,8 +55,13 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
   const [challengeTimer, setChallengeTimer] = useState(0)
   const [hintUnlocked, setHintUnlocked] = useState(false)
   const [localHintsUsed, setLocalHintsUsed] = useState(0)
+  const [effectiveStartTime, setEffectiveStartTime] = useState<Date | null>(null)
+  const [wasPaused, setWasPaused] = useState(false)
   const { submitAnswer, startChallenge, useHint, calculatePoints } = useChallenges()
   const { toast } = useToast()
+  const { pauseTimers, status: eventStatus } = useEventStatus()
+
+
 
   // Auto-start challenges except for the first one (order_index 1)
   useEffect(() => {
@@ -79,30 +85,39 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
   useEffect(() => {
     // Check if challenge has been started and is not solved
     if (progress?.started_at && progress.status && progress.status !== 'solved') {
-      const startTime = new Date(progress.started_at)
+      const originalStartTime = new Date(progress.started_at)
 
-      const updateTimer = async () => {
-        // Check if timers are paused
-        try {
-          const { data: settingsData } = await supabase
-            .from('event_settings')
-            .select('value')
-            .eq('key', 'pause_timers')
-            .single();
+      // Initialize effective start time if not set
+      if (!effectiveStartTime) {
+        setEffectiveStartTime(originalStartTime)
+      }
 
-          const timersPaused = settingsData?.value === 'true';
+      const updateTimer = () => {
+        const shouldPause = pauseTimers || eventStatus === 'paused' || eventStatus === 'ended'
+        const now = new Date()
 
-          if (!timersPaused) {
-            const now = new Date()
-            const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000)
-            setChallengeTimer(elapsed)
+        if (!shouldPause) {
+          // Timer is running
+          if (wasPaused) {
+            // We just resumed - adjust the effective start time
+            const currentDisplayTime = challengeTimer
+            const newEffectiveStart = new Date(now.getTime() - (currentDisplayTime * 1000))
+            setEffectiveStartTime(newEffectiveStart)
+            setWasPaused(false)
+            console.log(`Resumed: adjusted start time to continue from ${currentDisplayTime}s`)
           }
-          // If paused, don't update the timer
-        } catch (error) {
-          // If we can't check settings, continue with timer
-          const now = new Date()
-          const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000)
-          setChallengeTimer(elapsed)
+
+          if (effectiveStartTime) {
+            const elapsed = Math.floor((now.getTime() - effectiveStartTime.getTime()) / 1000)
+            setChallengeTimer(elapsed)
+            console.log(`Timer running: ${elapsed}s`)
+          }
+        } else {
+          // Timer is paused - don't update the display, just mark as paused
+          if (!wasPaused) {
+            setWasPaused(true)
+            console.log(`Timer paused at ${challengeTimer}s`)
+          }
         }
       }
 
@@ -118,8 +133,10 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
     } else {
       // For challenges that haven't been started yet or are solved, show 0:00
       setChallengeTimer(0)
+      setEffectiveStartTime(null)
+      setWasPaused(false)
     }
-  }, [progress, challenge.id])
+  }, [progress, challenge.id, pauseTimers, eventStatus, effectiveStartTime, wasPaused, challengeTimer])
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -289,13 +306,12 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
             {isUnlocked && (progress?.status as ChallengeProgress['status']) !== 'solved' && (
               <Badge
                 variant="outline"
-                className={`border-primary/50 text-xs ${
-                  challengeTimer > 120
-                      ? 'text-orange-400 border-orange-400/50'
-                      : challengeTimer > 90
-                        ? 'text-yellow-400 border-yellow-400/50'
-                        : 'text-primary'
-                }`}
+                className={`border-primary/50 text-xs ${challengeTimer > 120
+                    ? 'text-orange-400 border-orange-400/50'
+                    : challengeTimer > 90
+                      ? 'text-yellow-400 border-yellow-400/50'
+                      : 'text-primary'
+                  }`}
               >
                 <Timer className="w-3 h-3 mr-1" />
                 {formatTime(challengeTimer)}
@@ -344,7 +360,7 @@ export const ChallengeCard = ({ challenge, progress, isUnlocked, isActive, total
                     if (!progress?.started_at && challenge.order_index === 1) {
                       await startChallenge(challenge.id)
                     }
-                    
+
                     // First time clicking - unlock the hint
                     try {
                       await useHint(challenge.id)

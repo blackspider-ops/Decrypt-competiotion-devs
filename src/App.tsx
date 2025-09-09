@@ -11,6 +11,8 @@ import Leaderboard from "./pages/Leaderboard";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import EmergencyAdmin from "./pages/EmergencyAdmin";
+
 
 
 const queryClient = new QueryClient();
@@ -40,6 +42,7 @@ const App = () => (
               <Admin />
             </AuthGuard>
           } />
+          <Route path="/emergency-admin" element={<EmergencyAdmin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

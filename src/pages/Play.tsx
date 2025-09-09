@@ -14,13 +14,11 @@ import { ArrowLeft, CheckCircle2, Lock, LogOut, Pause, StopCircle, Clock } from 
 const Play = () => {
   const { challenges, progress, loading, isChallengeUnlocked, getChallengeProgress, currentChallenge, refreshTrigger, calculatePoints } = useChallenges();
   const { profile, signOut } = useAuth();
-  const { status: eventStatus, allowPlayAccess, loading: statusLoading } = useEventStatus();
+  const { status: eventStatus, loading: statusLoading } = useEventStatus();
   const { title } = useEventInfo();
 
   const solvedCount = progress.filter(p => p.status === 'solved').length;
   const progressPercentage = challenges.length > 0 ? (solvedCount / challenges.length) * 100 : 0;
-
-
 
   if (loading || statusLoading) {
     return (
@@ -28,15 +26,17 @@ const Play = () => {
         <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading challenges...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </div>
       </AuthGuard>
     );
   }
 
-  // Show access denied if event doesn't allow play access
-  if (!allowPlayAccess) {
+
+
+  // STAGE 3: Event is ENDED - Show ended message
+  if (eventStatus === 'ended') {
     return (
       <AuthGuard>
         <div className="min-h-screen bg-background">
@@ -62,32 +62,20 @@ const Play = () => {
               <Card className="card-cyber">
                 <CardHeader>
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center mx-auto mb-4 border border-accent/30">
-                    {eventStatus === 'not_started' ? (
-                      <Clock className="w-8 h-8 text-accent" />
-                    ) : eventStatus === 'ended' ? (
-                      <StopCircle className="w-8 h-8 text-muted-foreground" />
-                    ) : (
-                      <Pause className="w-8 h-8 text-accent" />
-                    )}
+                    <StopCircle className="w-8 h-8 text-muted-foreground" />
                   </div>
-                  <CardTitle className="text-2xl mb-2">
-                    {eventStatus === 'not_started' && 'Event Not Started'}
-                    {eventStatus === 'ended' && 'Event Ended'}
-                    {eventStatus === 'paused' && 'Event Paused'}
-                  </CardTitle>
+                  <CardTitle className="text-2xl mb-2">Event Ended</CardTitle>
                   <CardDescription className="text-lg">
-                    {eventStatus === 'not_started' && 'The competition hasn\'t started yet. Please check back later!'}
-                    {eventStatus === 'ended' && 'The competition has ended. Thank you for participating!'}
-                    {eventStatus === 'paused' && 'The competition is temporarily paused. Please wait for further updates.'}
+                    The competition has ended. Thank you for participating!
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex justify-center gap-4">
                     <Button asChild className="btn-neon">
-                      <Link to="/">Return Home</Link>
+                      <Link to="/leaderboard">View Final Results</Link>
                     </Button>
                     <Button asChild variant="outline" className="btn-cyber">
-                      <Link to="/leaderboard">View Leaderboard</Link>
+                      <Link to="/">Return Home</Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -99,9 +87,81 @@ const Play = () => {
     );
   }
 
+  // STAGE 0: Event not started - Show waiting message
+  if (eventStatus === 'not_started') {
+    return (
+      <AuthGuard>
+        <div className="min-h-screen bg-background">
+          <header className="border-b border-primary/20 p-4">
+            <div className="container mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button asChild variant="ghost" size="sm" className="btn-cyber">
+                  <Link to="/">
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Home
+                  </Link>
+                </Button>
+                <div className="flex items-center gap-3">
+                  <img src="/logo.png" alt="Devs@PSU Logo" className="w-8 h-8" />
+                  <h1 className="text-2xl font-bold text-gradient-cyber">{title.split(' — ')[0] || title}</h1>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <div className="container mx-auto px-4 py-16">
+            <div className="max-w-2xl mx-auto text-center">
+              <Card className="card-cyber">
+                <CardHeader>
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center mx-auto mb-4 border border-accent/30">
+                    <Clock className="w-8 h-8 text-accent" />
+                  </div>
+                  <CardTitle className="text-2xl mb-2">Event Not Started</CardTitle>
+                  <CardDescription className="text-lg">
+                    The competition hasn't started yet. Please check back later!
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-center gap-4">
+                    <Button asChild className="btn-neon">
+                      <Link to="/">Return Home</Link>
+                    </Button>
+                    <Button asChild variant="outline" className="btn-cyber">
+                      <Link to="/leaderboard">View Leaderboard</Link>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="btn-cyber"
+                      onClick={() => window.location.reload()}
+                    >
+                      Refresh Status
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </AuthGuard>
+    );
+  }
+
+  // STAGE 1: Event is LIVE - Show the normal quiz interface
   return (
     <AuthGuard>
       <div className="min-h-screen bg-background">
+
+
+      {/* Paused Banner */}
+      {eventStatus === 'paused' && (
+        <div className="bg-accent/20 border-b border-accent/30 p-4 text-center">
+          <div className="flex items-center justify-center gap-2">
+            <Pause className="w-5 h-5 text-accent" />
+            <span className="text-accent font-medium">Event Paused - All timers are frozen</span>
+          </div>
+        </div>
+      )}
+      
       {/* Header */}
       <header className="mobile-header">
         <div className="mobile-nav">

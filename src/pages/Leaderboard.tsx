@@ -15,7 +15,7 @@ import { Logo } from "@/components/ui/logo";
 const Leaderboard = () => {
   const { leaderboard, loading, formatTime } = useLeaderboard();
   const { status: eventStatus, allowPlayAccess } = useEventStatus();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const getRankDisplay = (rank: number) => {
@@ -48,7 +48,7 @@ const Leaderboard = () => {
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
-            {user ? (
+            {user || profile ? (
               <Button asChild className="btn-neon text-sm sm:text-base px-3 sm:px-4">
                 <Link to="/play">
                   <span className="hidden sm:inline">Join Competition</span>
@@ -265,7 +265,7 @@ const Leaderboard = () => {
               {eventStatus === 'not_started' && 'Competition hasn\'t started yet. Check back later!'}
             </p>
             {allowPlayAccess && (
-              user ? (
+              user || profile ? (
                 <Button asChild className="btn-neon text-sm sm:text-base">
                   <Link to="/play">
                     {eventStatus === 'live' ? 'Join the Competition' : 'View Challenges'}

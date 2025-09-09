@@ -31,14 +31,21 @@ export const useEventStatus = () => {
           schema: 'public',
           table: 'event_settings'
         },
-        () => {
+        (payload) => {
+          console.log('Event settings changed:', payload)
           fetchEventStatus()
         }
       )
       .subscribe()
 
+    // Also set up a polling fallback every 5 seconds
+    const pollInterval = setInterval(() => {
+      fetchEventStatus()
+    }, 5000)
+
     return () => {
       subscription.unsubscribe()
+      clearInterval(pollInterval)
     }
   }, [])
 
@@ -71,6 +78,10 @@ export const useEventStatus = () => {
 
   return {
     ...eventStatus,
-    refetch: fetchEventStatus
+    refetch: fetchEventStatus,
+    forceRefresh: () => {
+      console.log('Force refreshing event status...')
+      fetchEventStatus()
+    }
   }
 }

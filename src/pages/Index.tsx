@@ -110,7 +110,7 @@ const Index = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-              {user ? (
+              {user || profile ? (
                 <>
                   <Button asChild size="lg" className="btn-neon text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
                     <Link to="/play">Continue Playing</Link>

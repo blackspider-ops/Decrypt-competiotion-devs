@@ -11,12 +11,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Settings, Users, Trophy, Play, Pause, RotateCcw, Edit, Trash2, Plus, Award, StopCircle, Upload, UserX } from "lucide-react";
+import { ArrowLeft, Settings, Users, Trophy, Play, Pause, RotateCcw, Edit, Trash2, Plus, Award, StopCircle, Upload, UserX, Shield, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEventInfo } from "@/hooks/useEventInfo";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useFallbackAuth } from "@/hooks/useFallbackAuth";
+import { useEmergencyAdmin } from "@/hooks/useEmergencyAdmin";
 
 interface Challenge {
   id: number
@@ -68,10 +70,12 @@ interface Certificate {
 }
 
 const Admin = () => {
-  const { profile, isOwner } = useAuth();
+  const { profile, isOwner, signOut } = useAuth();
   const [eventStatus, setEventStatus] = useState<"not_started" | "live" | "paused" | "ended">("live");
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [users, setUsers] = useState<UserSummary[]>([]);
+  const { fallbackSettings, toggleFallbackAuth } = useFallbackAuth();
+  const { EMERGENCY_ADMIN_CODE } = useEmergencyAdmin();
   const [eventSettings, setEventSettings] = useState<EventSetting[]>([]);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -302,7 +306,7 @@ const Admin = () => {
 
   const updateEventStatus = async (newStatus: typeof eventStatus) => {
     try {
-      // Only update the event status, don't change other settings automatically
+      // Update the event status
       const { error: statusError } = await supabase
         .from('event_settings')
         .upsert({
@@ -312,6 +316,18 @@ const Admin = () => {
         });
 
       if (statusError) throw statusError;
+
+      // Also update pause_timers based on the event status
+      const shouldPauseTimers = newStatus === 'paused' || newStatus === 'ended';
+      const { error: pauseError } = await supabase
+        .from('event_settings')
+        .upsert({
+          key: 'pause_timers',
+          value: shouldPauseTimers.toString(),
+          description: 'Whether challenge timers should be paused'
+        });
+
+      if (pauseError) throw pauseError;
 
       // Update local state
       setEventStatus(newStatus);
@@ -883,6 +899,21 @@ const Admin = () => {
                 <h1 className="text-2xl font-bold text-gradient-cyber">Admin Panel</h1>
               </div>
             </div>
+            
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground hidden sm:block">
+                Welcome, <span className="text-primary">{profile?.full_name}</span>
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={signOut}
+                className="btn-cyber"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
           </div>
         </header>
         <div className="container mx-auto px-4 py-8">
@@ -924,6 +955,20 @@ const Admin = () => {
               {getStatusIcon(eventStatus)}
               <span className="font-medium capitalize">{eventStatus.replace('_', ' ')}</span>
             </div>
+            
+            <span className="text-sm text-muted-foreground hidden sm:block">
+              Welcome, <span className="text-primary">{profile?.full_name}</span>
+            </span>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={signOut}
+              className="btn-cyber"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
           </div>
         </div>
       </header>
@@ -1865,6 +1910,83 @@ const Admin = () => {
                     ))}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+            {/* Fallback Authentication Card */}
+            <Card className="card-cyber">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-orange-500" />
+                  Fallback Authentication
+                </CardTitle>
+                <CardDescription>
+                  Emergency authentication system for when Supabase is unavailable
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <h4 className="font-medium">Fallback Login</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Allow users to login with a 5-digit code when email auth fails
+                    </p>
+                  </div>
+                  <Button
+                    variant={fallbackSettings.enabled ? "destructive" : "default"}
+                    onClick={async () => {
+                      const result = await toggleFallbackAuth(!fallbackSettings.enabled)
+                      if (result.success) {
+                        toast({
+                          title: fallbackSettings.enabled ? "Fallback Disabled" : "Fallback Enabled",
+                          description: result.code ? `Access code: ${result.code}` : "Fallback authentication disabled"
+                        })
+                      }
+                    }}
+                  >
+                    {fallbackSettings.enabled ? "Disable" : "Enable"}
+                  </Button>
+                </div>
+
+                {fallbackSettings.enabled && (
+                  <div className="p-4 bg-orange-900/20 border border-orange-500/30 rounded-lg">
+                    <h4 className="font-medium text-orange-400 mb-2">Current Access Code</h4>
+                    <div className="flex items-center gap-2">
+                      <code className="px-3 py-2 bg-background border border-primary/30 rounded font-mono text-lg text-primary">
+                        {fallbackSettings.accessCode}
+                      </code>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => navigator.clipboard.writeText(fallbackSettings.accessCode)}
+                      >
+                        Copy
+                      </Button>
+                    </div>
+                    <p className="text-sm text-orange-300 mt-2">
+                      Share this code with users when email authentication is not working
+                    </p>
+                  </div>
+                )}
+
+                <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
+                  <h4 className="font-medium text-red-400 mb-2">Emergency Admin Code</h4>
+                  <div className="flex items-center gap-2">
+                    <code className="px-3 py-2 bg-background border border-primary/30 rounded font-mono text-lg text-primary">
+                      {EMERGENCY_ADMIN_CODE}
+                    </code>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigator.clipboard.writeText(EMERGENCY_ADMIN_CODE)}
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                  <p className="text-sm text-red-300 mt-2">
+                    <strong>Keep this secret!</strong> Users can enter this code during signup to get instant admin access.
+                    Use only in emergencies when Supabase is completely down.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
