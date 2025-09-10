@@ -1,4 +1,4 @@
-# Code Break Arena
+# Decrypt
 
 A competitive programming challenge platform built with React, TypeScript, and Supabase.
 
